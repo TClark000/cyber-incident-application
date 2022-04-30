@@ -1,0 +1,39 @@
+version: "3.8"
+services:
+  front-end:
+    image: map:local
+    networks:
+      - frontend
+    ports:
+      - "3000:3000"
+  restful-ci:
+    image: restful-ci:local
+    env_file:
+      - env/.restful-ci
+    depends_on:
+      - postgres
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "8080:8080"
+  postgres:
+    image: postgres:14.2
+    env_file:
+      - env/.postgres
+    networks:
+      - backend
+    volumes:
+      - ./db_sql:/backup
+      - ./db_sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - postgres-data:/Users/teresaclark/dev/Applications/demo-cyberincident/volumes/postgres-data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+volumes:
+  postgres-data:
+networks:
+  backend:
+    name: demo_ci_backend
+  frontend:
+    name: demo_ci_frontend
